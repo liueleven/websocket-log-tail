@@ -9,7 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @description: 一定要写注释啊
+ * @description: 页面访问
  * @date: 2019-11-29 10:33
  * @author: 十一
  */
