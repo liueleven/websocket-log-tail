@@ -20,10 +20,17 @@ public class Application {
         if (logPath == null || "".equals(logPath)) {
             throw  new RuntimeException("请输入日志路径");
         }
-        System.out.println("================================================");
-        System.out.println(String.format("读取日志路径：【 %s 】" , logPath));
-        System.out.println(String.format("手动传参：【 %s 】" , Arrays.toString(args)));
-        System.out.println("================================================");
+        String ip = System.getProperty("ip");
+        if (ip == null || "".equals(ip)) {
+            // 默认
+            ip = "127.0.0.1";
+            System.setProperty("ip",ip);
+        }
+
+        System.out.println("========================================================================");
+        System.out.println(String.format("读取日志路径：\t\t【 %s 】" , logPath));
+        System.out.println(String.format("页面访问ip：   \t\t【 %s 】" , ip));
+        System.out.println("========================================================================");
         SpringApplication.run(Application.class,args);
 
     }

@@ -27,8 +27,10 @@ public class PageController {
     @GetMapping("/log")
     public ModelAndView home(Model model, HttpServletRequest request) throws Exception {
         int serverPort = request.getServerPort();
+        String ip = System.getProperty("ip");
         ModelAndView mv = new ModelAndView("log-view");
         mv.addObject("port",serverPort);
+        mv.addObject("ip",ip);
         return mv;
     }
 }
