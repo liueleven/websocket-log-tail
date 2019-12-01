@@ -28,8 +28,8 @@ public class Application {
         }
 
         System.out.println("========================================================================");
-        System.out.println(String.format("读取日志路径：\t\t【 %s 】" , logPath));
-        System.out.println(String.format("页面访问ip：   \t\t【 %s 】" , ip));
+        System.out.println(String.format("读取日志路径： 【 %s 】" , logPath));
+        System.out.println(String.format("页面访问ip：  【 %s 】" , ip));
         System.out.println("========================================================================");
         SpringApplication.run(Application.class,args);
 
