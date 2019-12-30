@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.springframework.org/schema/mvc">
 <head>
-<meta charset="utf-8">
-<title>tail log</title>
-<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+    <meta charset="utf-8">
+    <title>tail log</title>
+    <script src="https://cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
 </head>
 <body>
+<div style="padding-left: 10px;padding-bottom: 10px;font-size: large">
+    <input id="button-ctr" type="button" value="开启" style="color: red" onclick="stopOrStart();">
+    <select id="logSelect">
+        <option value="default">请选择</option>
+        <option th:each="log:${logList}" th:value="${log}" th:text="${log}"></option>
+    </select>
+
+</div>
+<div id="log-container" style="height: 700px; overflow-y: scroll; background: #333; color: #aaa; padding: 10px;">
     <div>
-        <input type="button" value="暂停/开始" style="color: red" onclick="stopOrStart();">
     </div>
-	<div id="log-container" style="height: 700px; overflow-y: scroll; background: #333; color: #aaa; padding: 10px;">
-		<div>
-		</div>
-	</div>
+</div>
 </body>
 <script th:inline="javascript">
 
@@ -20,22 +25,75 @@
     var ip = [[${ip}]];
 
     var flag = false;
+    var websocket;
     var stopOrStart = function () {
         flag = !flag;
+        if (flag) {
+            $("#button-ctr").attr('value', '暂停');
+        } else {
+            $("#button-ctr").attr('value', '开启');
+        }
     };
 
-	$(document).ready(function() {
-		// 指定websocket路径
-		var websocket = new WebSocket('ws://'+ip+':'+port+'/log');
-		websocket.onmessage = function(event) {
-			if (flag) {
+    $("#logSelect").change(function () {
+        var selected = $("#logSelect option:selected").val();
+        $("#log-container div").append(getImg(selected));
+        // 发送给服务端
+        websocket.send(selected)
+
+    });
+
+
+    $(document).ready(function () {
+        // 指定websocket路径
+        websocket = new WebSocket('ws://' + ip + ':' + port + '/log');
+        // var websocket = new WebSocket('ws://47.56.91.138:8085/ws/v1');
+        websocket.onmessage = function (event) {
+            if (flag) {
                 // 接收服务端的实时日志并添加到HTML页面中
                 $("#log-container div").append(event.data);
                 // 滚动条滚动到最低部
                 $("#log-container").scrollTop($("#log-container div").height() - $("#log-container").height());
             }
-		};
-	});
+        };
+    });
+
+
+
+    var getImg = function(log){
+        return "◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇ 当前日志： "+log+"   ◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◇◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◆◆◆◆◆◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◆◆◆◆◆◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◆◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◆◆◆◆◆◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◆◆◆◆◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◆◆◆◆◆◆◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◇◇◇◇◇◆◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◆◆◆◆◇◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◆◆◆◆◆◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◆◆◆◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◆◆◆◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◆◇◇◇◆◆◆◆◇◇◇◆◆◆◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◆◆◇◇◇◆◆◆◇◇◇◇◆◆◆◆◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◇◇◆◆◇◇◇◇◆◆◇◇◇◇◇◆◆◆◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◇◆◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◇◇◇◆◆◇◇◇◇◇◇◆◆◇◇◇◆◆◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◇◆◇◇◇◇◇◇◆◆◆◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◆◇◇◇◆◆◆◇◇◇◇◇◇◆◇◇◇◇◆◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◆◆◆◆◆◆◇◇◇◇◇◇◇◇◇◇◇◇◆◆◆◆◇◇◇◇◆◆◆◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◆◆◆◇◇◇◇◇◇◆◆◆◆◇◇◇◆◆◆◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◆◆◇◇◇◇◇◇◇◇◇◇◇◇◇◆◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◆◆◇◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◇◆◇◇◇◇◇◇◇◇◇◆◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◆◆◆◆◆◆◆◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◆◇◇◇◇◇◇◇\n" +
+            "◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇";
+    }
+
+
 </script>
 </body>
 </html>

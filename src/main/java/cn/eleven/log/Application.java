@@ -5,7 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @description: 启动
@@ -14,12 +16,17 @@ import java.util.Arrays;
  */
 @SpringBootApplication
 public class Application {
+    /**
+     * 日志集合
+     */
+    public static List<String> LOG_PATH_ARR = new ArrayList<>(16);
 
     public static void main(String[] args) {
         String logPath = System.getProperty("logPath");
         if (logPath == null || "".equals(logPath)) {
             throw  new RuntimeException("请输入日志路径");
         }
+        LOG_PATH_ARR = Arrays.asList(logPath.split(";"));
         String ip = System.getProperty("ip");
         if (ip == null || "".equals(ip)) {
             // 默认
@@ -34,6 +41,8 @@ public class Application {
         SpringApplication.run(Application.class,args);
 
     }
+
+
 
     @Bean
     public ServerEndpointExporter serverEndpointExporter() {

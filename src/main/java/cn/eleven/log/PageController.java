@@ -31,6 +31,8 @@ public class PageController {
         ModelAndView mv = new ModelAndView("log-view");
         mv.addObject("port",serverPort);
         mv.addObject("ip",ip);
+
+        mv.addObject("logList",Application.LOG_PATH_ARR);
         return mv;
     }
 }
