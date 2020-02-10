@@ -4,3 +4,5 @@ server:
 spring:
   thymeleaf:
     prefix: classpath:/templates/
+  mvc:
+    static-path-pattern: /static/**
